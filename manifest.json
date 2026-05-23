@@ -1,12 +1,14 @@
 {
   "name": "ایما - دستیار هوشمند ریاضی",
   "short_name": "ایما",
-  "description": "یادگیری و حل مسائل ریاضی با هوش مصنوعی",
-  "start_url": "/",
+  "description": "برنامه هوشمند آموزش و حل مسائل ریاضی",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "theme_color": "#4f46e5",
-  "background_color": "#f8fafc",
   "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+
   "icons": [
     {
       "src": "IMA.png",
@@ -17,7 +19,8 @@
     {
       "src": "IMA.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
