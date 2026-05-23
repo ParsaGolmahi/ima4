@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>اثبات تعاملی قضیه فیثاغورس | بدون مشکل مربع توخالی</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Tahoma', 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2a 100%);
+        }
+
+        canvas {
+            display: block;
+            outline: none;
+        }
+
+        .ui-panel {
+            position: fixed;
+            background: rgba(10, 12, 28, 0.92);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            padding: 24px;
+            color: white;
+            z-index: 1000;
+            pointer-events: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s ease;
+        }
+
+        #top-panel {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            min-width: 450px;
+        }
+
+        #top-panel h1 {
+            font-size: 32px;
+            margin: 0 0 12px 0;
+            background: linear-gradient(135deg, #4ecdc4, #6bff6b, #ffd93d, #ff6b9d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        #instruction {
+            font-size: 19px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        #instruction.success {
+            color: #00ffaa;
+            text-shadow: 0 0 12px #00ffaa;
+            font-weight: bold;
+        }
+
+        #formula-panel {
+            top: 20px;
+            right: 20px;
+            text-align: left;
+            direction: ltr;
+            font-size: 22px;
+            line-height: 2.2;
+        }
+
+        .blue { color: #4ecdc4; font-weight: bold; text-shadow: 0 0 6px #4ecdc4; }
+        .green { color: #6bff6b; font-weight: bold; text-shadow: 0 0 6px #6bff6b; }
+        .yellow { color: #ffd93d; font-weight: bold; font-size: 26px; text-shadow: 0 0 8px #ffd93d; }
+
+        #status-panel {
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 17px;
+            text-align: center;
+            min-width: 360px;
+            padding: 18px 24px;
+        }
+
+        #progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            margin-top: 14px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4ecdc4, #6bff6b, #ffd93d);
+            border-radius: 12px;
+            transition: width 0.35s ease;
+        }
+
+        .btn-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1001;
+        }
+
+        .btn {
+            background: rgba(20, 22, 45, 0.85);
+            backdrop-filter: blur(12px);
+            color: white;
+            border: 1.5px solid rgba(255, 255, 255, 0.35);
+            padding: 12px 26px;
+            border-radius: 60px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+            border-color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .hint-text {
+            position: fixed;
+            bottom: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,240,0.55);
+            font-size: 14px;
+            z-index: 1000;
+            pointer-events: none;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 18px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+            white-space: nowrap;
+        }
+
+        #info-panel {
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            max-width: 260px;
+            padding: 18px;
+            font-size: 14px;
+        }
+
+        #info-panel h3 {
+            margin-bottom: 12px;
+            color: #ffd93d;
+            font-size: 18px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding: 6px 0;
+        }
+
+        .celebration-icon {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 110px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 2000;
+            animation: burstCeleb 1.8s ease-out forwards;
+        }
+
+        @keyframes burstCeleb {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0deg); }
+            30% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(15deg); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6) rotate(360deg); }
+        }
+
+        @media (max-width: 700px) {
+            #top-panel { min-width: 85vw; padding: 16px; }
+            #top-panel h1 { font-size: 23px; }
+            #formula-panel { display: none; }
+            #info-panel { display: none; }
+            .btn { padding: 8px 18px; font-size: 12px; }
+            .hint-text { font-size: 10px; white-space: nowrap; bottom: 110px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="top-panel" class="ui-panel">
+        <h1>📐 قضیه فیثاغورس • اثبات تعاملی</h1>
+        <div id="instruction">🔷 مربع آبی و 🟩 مربع سبز را روی صفحه زرد قرار دهید</div>
+    </div>
+
+    <div id="formula-panel" class="ui-panel">
+        <div style="font-size: 14px; opacity:0.7; margin-bottom:6px;">📐 فیثاغورس:</div>
+        <span class="blue">a²</span> + <span class="green">b²</span> = <span class="yellow">c²</span>
+        <div style="margin-top: 12px; font-size: 14px;">
+            <span class="blue">۳×۳ = ۹</span><br>
+            <span class="green">۴×۴ = ۱۶</span><br>
+            <span class="yellow">۵×۵ = ۲۵</span>
+        </div>
+        <div style="margin-top: 8px; border-top: 2px solid rgba(255,255,255,0.3); padding-top: 8px;">۹ + ۱۶ = ۲۵ ✓</div>
+    </div>
+
+    <div id="info-panel" class="ui-panel">
+        <h3>📊 آمار تعاملی</h3>
+        <div class="stat-item"><span>تلاش‌ها:</span><span id="attempts">۰</span></div>
+        <div class="stat-item"><span>موفقیت‌ها:</span><span id="successes">۰</span></div>
+        <div class="stat-item"><span>زمان:</span><span id="timer">۰۰:۰۰</span></div>
+        <div class="stat-item"><span>امتیاز:</span><span id="score">۰</span></div>
+    </div>
+
+    <div id="status-panel" class="ui-panel">
+        <span id="status-text">🟢 قطعه‌ها را جابه‌جا کنید...</span>
+        <div id="progress-bar"><div id="progress-fill"></div></div>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn" id="resetBtn">🔄 ریست کامل</button>
+        <button class="btn" id="animToggleBtn">⏸️ توقف انیمیشن</button>
+        <button class="btn" id="themeBtn">🎨 تغییر تم</button>
+    </div>
+
+    <div class="hint-text">
+        🖱️ کشیدن قطعات | ⌨️ R: ریست | F: تمام صفحه | Space: انیمیشن | 1,2,3: دوربین
+    </div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ---------- تنظیمات اولیه ----------
+        let scene, camera, renderer, controls;
+        let pieceA, pieceB, targetSquare;
+        let triangleGroup;
+        let labelA, labelB, labelC;
+        let particleSys;
+        let raycaster, mouseDrag, dragPlane;
+        let selectedPiece = null;
+        let piecesSnapped = { a: false, b: false };
+        let animEnabled = true;
+        let currentTheme = 0;
+        let stats = { attempts: 0, successes: 0, score: 0, startTime: Date.now() };
+
+        // DOM elements
+        const statusTextEl = document.getElementById('status-text');
+        const instructionEl = document.getElementById('instruction');
+        const progressFill = document.getElementById('progress-fill');
+
+        // موقعیت قطعات (ابعاد: قطعه آبی 1.5×1.5 , سبز 2×2 , هدف 2.5×2.5)
+        const initPosA = new THREE.Vector3(-4.8, 0.12, -3.2);
+        const initPosB = new THREE.Vector3(4.5, 0.12, -3.5);
+        // موقعیت‌های نهایی چفت شدن روی مربع زرد (چینش منطقی)
+        const snapPosA = new THREE.Vector3(-0.55, 0.12, 0);
+        const snapPosB = new THREE.Vector3(0.65, 0.12, 0);
+        const snapThreshold = 0.75;
+
+        // تم‌های رنگی
+        const themes = [
+            { bg: '#0a0a1a', a: '#4ecdc4', b: '#6bff6b', c: '#ffd93d' },
+            { bg: '#12102a', a: '#ff9f4a', b: '#ff4d6d', c: '#00d4ff' },
+            { bg: '#1a2a1a', a: '#b76ef0', b: '#6bffb0', c: '#ffb347' }
+        ];
+
+        // راه‌اندازی کلی
+        init();
+        animate();
+        startTimer();
+        initBackgroundParticles();
+
+        // ---------- توابع اصلی ----------
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(themes[currentTheme].bg);
+            scene.fog = new THREE.FogExp2(themes[currentTheme].bg, 0.025);
+
+            camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 5.5, 11);
+            camera.lookAt(0, 1, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // کنترل دوربین
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.06;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.8;
+            controls.enableZoom = true;
+            controls.target.set(0, 0.6, 0);
+            controls.maxPolarAngle = Math.PI / 2.2;
+
+            // نورپردازی
+            const ambient = new THREE.AmbientLight(0x404060, 0.7);
+            scene.add(ambient);
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.3);
+            mainLight.position.set(5, 12, 6);
+            mainLight.castShadow = true;
+            mainLight.shadow.mapSize.width = 1024;
+            mainLight.shadow.mapSize.height = 1024;
+            scene.add(mainLight);
+            const fillLight = new THREE.PointLight(0x5577aa, 0.6);
+            fillLight.position.set(-3, 4, 4);
+            scene.add(fillLight);
+            const backLight = new THREE.PointLight(0xffaa66, 0.5);
+            backLight.position.set(0, 3, -5);
+            scene.add(backLight);
+
+            // کف و شبکه
+            const floorMat = new THREE.MeshStandardMaterial({ color: '#15152e', roughness: 0.8, metalness: 0.1 });
+            const floorPlane = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), floorMat);
+            floorPlane.rotation.x = -Math.PI / 2;
+            floorPlane.position.y = -0.05;
+            floorPlane.receiveShadow = true;
+            scene.add(floorPlane);
+            const grid = new THREE.GridHelper(24, 24, 0x88aaff, 0x335588);
+            grid.position.y = 0;
+            scene.add(grid);
+
+            // مثلث راهنما (3-4-5)
+            triangleGroup = createRightTriangleModel();
+            triangleGroup.position.set(0, 0.08, -5.4);
+            scene.add(triangleGroup);
+
+            // مربع هدف (c²) بدون حاشیه اضافی - فقط خود مربع با نور
+            targetSquare = createSolidPlate(2.5, 0.08, 2.5, themes[currentTheme].c, 0.75);
+            targetSquare.position.set(0, 0.08, 0);
+            targetSquare.receiveShadow = true;
+            targetSquare.castShadow = true;
+            scene.add(targetSquare);
+            // اضافه کردن یک حاشیه زیبا ولی جدا از مربع هدف (برای نمایش محدوده)
+            addTargetBorderDecoration();
+
+            // قطعه آبی (a² = 3x3 -> مربع 1.5*1.5) بدون حاشیه مزاحم داخلی
+            pieceA = createSolidPlate(1.5, 0.1, 1.5, themes[currentTheme].a, 0.9);
+            pieceA.position.copy(initPosA);
+            pieceA.name = 'pieceA';
+            pieceA.userData = { type: 'a' };
+            scene.add(pieceA);
+
+            // قطعه سبز (b² = 4x4 -> مربع 2*2)
+            pieceB = createSolidPlate(2.0, 0.1, 2.0, themes[currentTheme].b, 0.9);
+            pieceB.position.copy(initPosB);
+            pieceB.name = 'pieceB';
+            pieceB.userData = { type: 'b' };
+            scene.add(pieceB);
+
+            // برچسب‌های متنی معلق
+            labelA = createFloatingLabel('a² = ۹', themes[currentTheme].a);
+            labelB = createFloatingLabel('b² = ۱۶', themes[currentTheme].b);
+            labelC = createFloatingLabel('c² = ۲۵', themes[currentTheme].c);
+            labelA.position.copy(initPosA).add(new THREE.Vector3(0, 0.65, 0));
+            labelB.position.copy(initPosB).add(new THREE.Vector3(0, 0.65, 0));
+            labelC.position.set(0, 0.75, 0);
+            scene.add(labelA);
+            scene.add(labelB);
+            scene.add(labelC);
+
+            // Raycaster و صفحه درگ
+            raycaster = new THREE.Raycaster();
+            mouseDrag = new THREE.Vector2();
+            dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.15);
+
+            // رویدادها
+            window.addEventListener('resize', onWindowResize);
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+            window.addEventListener('keydown', onKeyDown);
+
+            // دکمه‌ها
+            document.getElementById('resetBtn').onclick = () => fullReset();
+            document.getElementById('animToggleBtn').onclick = () => toggleAnimation();
+            document.getElementById('themeBtn').onclick = () => changeTheme();
+        }
+
+        // ساخت مربع یکپارچه و زیبا (بدون حاشیه خطی که شبیه مربع توخالی شود)
+        function createSolidPlate(w, h, d, color, emissiveIntensity = 0.5) {
+            const geometry = new THREE.BoxGeometry(w, h, d);
+            const material = new THREE.MeshStandardMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: emissiveIntensity,
+                roughness: 0.25,
+                metalness: 0.3,
+                transparent: true,
+                opacity: 0.96
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            return mesh;
+        }
+
+        // دکوراسیون حاشیه هدف - جدا از خود مربع (چهار گوشه نورانی)
+        function addTargetBorderDecoration() {
+            const borderMat = new THREE.MeshStandardMaterial({ color: themes[currentTheme].c, emissive: themes[currentTheme].c, emissiveIntensity: 0.7 });
+            const positions = [
+                [-1.25, 0.14, -1.25], [ 1.25, 0.14, -1.25],
+                [-1.25, 0.14,  1.25], [ 1.25, 0.14,  1.25]
+            ];
+            positions.forEach(pos => {
+                const corner = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.08, 0.15), borderMat.clone());
+                corner.position.set(pos[0], pos[1], pos[2]);
+                corner.name = "targetCorner";
+                scene.add(corner);
+            });
+        }
+
+        function createRightTriangleModel() {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: '#ff8866', emissive: '#ff4422', emissiveIntensity: 0.4, roughness: 0.4 });
+            // ضلع عمودی a=3
+            const vert = new THREE.Mesh(new THREE.BoxGeometry(0.15, 3, 0.15), mat);
+            vert.position.set(-2, 1.5, 0);
+            group.add(vert);
+            // ضلع افقی b=4
+            const horz = new THREE.Mesh(new THREE.BoxGeometry(4, 0.15, 0.15), mat);
+            horz.position.set(0, 0.08, 0);
+            group.add(horz);
+            // وتر c=5
+            const hypo = new THREE.Mesh(new THREE.BoxGeometry(5, 0.15, 0.15), mat);
+            hypo.position.set(-1.2, 1.5, 0);
+            hypo.rotation.z = -Math.atan2(3, 4);
+            group.add(hypo);
+            
+            const addLabel = (text, pos, scale = 0.8) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 128; canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#ffaa88';
+                ctx.font = 'bold 32px Tahoma';
+                ctx.fillText(text, 10, 42);
+                const tex = new THREE.CanvasTexture(canvas);
+                const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
+                spr.scale.set(1.2 * scale, 0.6 * scale, 1);
+                spr.position.copy(pos);
+                group.add(spr);
+            };
+            addLabel('a = ۳', new THREE.Vector3(-3.2, 1.5, 0), 0.7);
+            addLabel('b = ۴', new THREE.Vector3(1.8, -0.4, 0), 0.7);
+            addLabel('c = ۵', new THREE.Vector3(0.8, 2.3, 0), 0.7);
+            return group;
+        }
+
+        function createFloatingLabel(text, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.font = 'Bold 48px "Segoe UI"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = 'black';
+            ctx.fillText(text, 128, 64);
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(1.8, 0.9, 1);
+            return sprite;
+        }
+
+        function initBackgroundParticles() {
+            const geom = new THREE.BufferGeometry();
+            const count = 400;
+            const positions = new Float32Array(count * 3);
+            for (let i = 0; i < count; i++) {
+                positions[i*3] = (Math.random() - 0.5) * 40;
+                positions[i*3+1] = Math.random() * 12;
+                positions[i*3+2] = (Math.random() - 0.5) * 35;
+            }
+            geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const pMat = new THREE.PointsMaterial({ color: '#aaccff', size: 0.07, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+            particleSys = new THREE.Points(geom, pMat);
+            scene.add(particleSys);
+        }
+
+        // ----- درگ و اسنپ (بدون ایجاد شیء اضافی) -----
+        function onPointerDown(event) {
+            const intersects = getPieceIntersections(event);
+            if (intersects.length) {
+                selectedPiece = intersects[0].object;
+                controls.enabled = false;
+                controls.autoRotate = false;
+                renderer.domElement.style.cursor = 'grabbing';
+                // افزایش درخشندگی برای بازخورد
+                selectedPiece.material.emissiveIntensity = 1.2;
+                event.preventDefault();
+            }
+        }
+
+        let intersectionPoint = new THREE.Vector3();
+
+        function onPointerMove(event) {
+            if (!selectedPiece) return;
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouseDrag.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouseDrag.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouseDrag, camera);
+            if (raycaster.ray.intersectPlane(dragPlane, intersectionPoint)) {
+                selectedPiece.position.x = intersectionPoint.x;
+                selectedPiece.position.z = intersectionPoint.z;
+                // محدوده حرکت
+                selectedPiece.position.x = Math.min(7.2, Math.max(-7.2, selectedPiece.position.x));
+                selectedPiece.position.z = Math.min(5.2, Math.max(-6, selectedPiece.position.z));
+                updateLabelsPosition();
+                showNearTargetEffect();
+                updateProgressBar();
+            }
+        }
+
+        function onPointerUp() {
+            if (selectedPiece) {
+                stats.attempts++;
+                updateStatsDisplay();
+                snapIfClose(selectedPiece);
+                selectedPiece.material.emissiveIntensity = 0.7;
+                selectedPiece = null;
+                controls.enabled = true;
+                controls.autoRotate = animEnabled;
+                renderer.domElement.style.cursor = 'grab';
+                checkFullCompletion();
+            }
+        }
+
+        function snapIfClose(piece) {
+            const isA = piece.name === 'pieceA';
+            const target = isA ? snapPosA : snapPosB;
+            const dist = piece.position.distanceTo(target);
+            if (dist < snapThreshold) {
+                piece.position.copy(target);
+                if (isA) piecesSnapped.a = true;
+                else piecesSnapped.b = true;
+                createSnapEffect(piece.position, piece.material.color.getStyle());
+                updateLabelsPosition();
+            } else {
+                if (isA) piecesSnapped.a = false;
+                else piecesSnapped.b = false;
+            }
+            updateStatusText();
+        }
+
+        function showNearTargetEffect() {
+            if (!selectedPiece) return;
+            const isA = selectedPiece.name === 'pieceA';
+            const target = isA ? snapPosA : snapPosB;
+            const dist = selectedPiece.position.distanceTo(target);
+            const intensity = Math.min(1.2, 0.6 + (1 - dist / 1.8) * 0.8);
+            targetSquare.material.emissiveIntensity = dist < 1.4 ? intensity : 0.45;
+        }
+
+        function updateProgressBar() {
+            let progress = 0;
+            const distA = pieceA.position.distanceTo(snapPosA);
+            const distB = pieceB.position.distanceTo(snapPosB);
+            progress = (Math.max(0, 1 - distA / 2.2) * 50) + (Math.max(0, 1 - distB / 2.2) * 50);
+            progress = Math.min(100, progress);
+            progressFill.style.width = `${progress}%`;
+        }
+
+        function updateLabelsPosition() {
+            labelA.position.copy(pieceA.position).add(new THREE.Vector3(0, 0.65, 0));
+            labelB.position.copy(pieceB.position).add(new THREE.Vector3(0, 0.65, 0));
+        }
+
+        function updateStatusText() {
+            if (piecesSnapped.a && piecesSnapped.b) {
+                statusTextEl.textContent = '✅ اثبات کامل! a² + b² = c²';
+                instructionEl.innerHTML = '🎉 عالی! قضیه فیثاغورس اثبات شد!';
+                instructionEl.classList.add('success');
+            } else if (piecesSnapped.a && !piecesSnapped.b) {
+                statusTextEl.textContent = '🟦 مربع آبی در جای خود است، حالا مربع سبز را بچینید';
+            } else if (!piecesSnapped.a && piecesSnapped.b) {
+                statusTextEl.textContent = '🟩 مربع سبز در جای خود است، مربع آبی را قرار دهید';
+            } else {
+                statusTextEl.textContent = '🔷 قطعه‌ها را روی مربع زرد بکشید';
+            }
+        }
+
+        function checkFullCompletion() {
+            if (piecesSnapped.a && piecesSnapped.b && !window._celebratedNow) {
+                window._celebratedNow = true;
+                stats.successes++;
+                stats.score += 100;
+                updateStatsDisplay();
+                celebrateWin();
+                setTimeout(() => { window._celebratedNow = false; }, 1500);
+            }
+        }
+
+        function celebrateWin() {
+            const div = document.createElement('div');
+            div.className = 'celebration-icon';
+            div.textContent = '🏆✨';
+            document.body.appendChild(div);
+            createParticleBurst(new THREE.Vector3(0, 0.6, 0), '#ffd966');
+            createParticleBurst(new THREE.Vector3(-0.6, 0.5, 0), '#4ecdc4');
+            createParticleBurst(new THREE.Vector3(0.7, 0.5, 0), '#6bff6b');
+            setTimeout(() => div.remove(), 1800);
+        }
+
+        function createSnapEffect(pos, color) {
+            const geom = new THREE.BufferGeometry();
+            const verts = [];
+            for (let i = 0; i < 20; i++) {
+                verts.push(pos.x + (Math.random() - 0.5) * 1.2, pos.y + 0.2, pos.z + (Math.random() - 0.5) * 1.2);
+            }
+            geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(verts), 3));
+            const pointsMat = new THREE.PointsMaterial({ color: color, size: 0.08, blending: THREE.AdditiveBlending });
+            const pts = new THREE.Points(geom, pointsMat);
+            scene.add(pts);
+            setTimeout(() => scene.remove(pts), 400);
+        }
+
+        function createParticleBurst(center, colorHex) {
+            const count = 40;
+            const geom = new THREE.BufferGeometry();
+            const posArray = [];
+            for (let i = 0; i < count; i++) {
+                posArray.push(center.x + (Math.random() - 0.5) * 1.5, center.y + Math.random() * 1.2, center.z + (Math.random() - 0.5) * 1.5);
+            }
+            geom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(posArray), 3));
+            const mat = new THREE.PointsMaterial({ color: colorHex, size: 0.1, transparent: true, blending: THREE.AdditiveBlending });
+            const sys = new THREE.Points(geom, mat);
+            scene.add(sys);
+            let life = 0;
+            const interval = setInterval(() => {
+                life += 0.05;
+                mat.opacity = 1 - life;
+                if (life >= 1) {
+                    clearInterval(interval);
+                    scene.remove(sys);
+                    geom.dispose();
+                }
+            }, 50);
+        }
+
+        function getPieceIntersections(event) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouseDrag.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouseDrag.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouseDrag, camera);
+            return raycaster.intersectObjects([pieceA, pieceB]);
+        }
+
+        // ------ ریست کامل ------
+        function fullReset() {
+            pieceA.position.copy(initPosA);
+            pieceB.position.copy(initPosB);
+            piecesSnapped.a = false;
+            piecesSnapped.b = false;
+            pieceA.material.emissiveIntensity = 0.7;
+            pieceB.material.emissiveIntensity = 0.7;
+            targetSquare.material.emissiveIntensity = 0.6;
+            progressFill.style.width = '0%';
+            instructionEl.innerHTML = '🔷 مربع آبی و 🟩 مربع سبز را روی صفحه زرد بکشید';
+            instructionEl.classList.remove('success');
+            statusTextEl.textContent = '🟢 قطعه‌ها را جابه‌جا کنید...';
+            updateLabelsPosition();
+            updateStatsDisplay();
+        }
+
+        function toggleAnimation() {
+            animEnabled = !animEnabled;
+            controls.autoRotate = animEnabled;
+            const btn = document.getElementById('animToggleBtn');
+            btn.innerHTML = animEnabled ? '⏸️ توقف انیمیشن' : '▶️ شروع انیمیشن';
+        }
+
+        function changeTheme() {
+            currentTheme = (currentTheme + 1) % themes.length;
+            const t = themes[currentTheme];
+            scene.background = new THREE.Color(t.bg);
+            scene.fog.color = new THREE.Color(t.bg);
+            pieceA.material.color.set(t.a);
+            pieceA.material.emissive.set(t.a);
+            pieceB.material.color.set(t.b);
+            pieceB.material.emissive.set(t.b);
+            targetSquare.material.color.set(t.c);
+            targetSquare.material.emissive.set(t.c);
+            // به‌روزرسانی گوشه‌های هدف
+            scene.children.forEach(child => {
+                if (child.name === 'targetCorner' && child.material) {
+                    child.material.color.set(t.c);
+                    child.material.emissive.set(t.c);
+                }
+            });
+            updateLabelTexture(labelA, 'a² = ۹', t.a);
+            updateLabelTexture(labelB, 'b² = ۱۶', t.b);
+            updateLabelTexture(labelC, 'c² = ۲۵', t.c);
+        }
+
+        function updateLabelTexture(sprite, text, color) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.font = 'Bold 48px "Segoe UI"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 128, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            sprite.material.map = tex;
+            sprite.material.needsUpdate = true;
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('attempts').innerText = toPersian(stats.attempts);
+            document.getElementById('successes').innerText = toPersian(stats.successes);
+            document.getElementById('score').innerText = toPersian(stats.score);
+        }
+
+        function startTimer() {
+            setInterval(() => {
+                const elapsed = Math.floor((Date.now() - stats.startTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                document.getElementById('timer').innerText = toPersian(`${mins < 10 ? '0' + mins : mins}:${secs < 10 ? '0' + secs : secs}`);
+            }, 1000);
+        }
+
+        function toPersian(num) {
+            return String(num).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+        }
+
+        function onKeyDown(e) {
+            switch(e.key.toLowerCase()) {
+                case 'r': fullReset(); break;
+                case 'f': if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); break;
+                case ' ': e.preventDefault(); toggleAnimation(); break;
+                case '1': camera.position.set(0, 5.5, 11); controls.target.set(0,0.6,0); controls.update(); break;
+                case '2': camera.position.set(8, 4.5, 3); controls.target.set(0,0.6,0); controls.update(); break;
+                case '3': camera.position.set(0, 9, 0.2); controls.target.set(0,0.6,0); controls.update(); break;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // حلقه انیمیشن
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            if (animEnabled) {
+                const time = performance.now() * 0.002;
+                if (triangleGroup) triangleGroup.rotation.y = Math.sin(time) * 0.12;
+                if (particleSys) particleSys.rotation.y += 0.0005;
+                labelC.position.y = 0.75 + Math.sin(Date.now() * 0.003) * 0.04;
+                targetSquare.rotation.y += 0.002;
+            }
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
