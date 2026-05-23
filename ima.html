@@ -3,31 +3,79 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
     <title>ایما | دستیار هوشمند ریاضی</title>
-  
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="/IMA.png">
-        <!-- آیکون سایت -->
-    <link rel="icon" href="IMA.png" type="image/png">
-    
-    <!-- متا تگ‌ها برای SEO -->
-    <meta name="description" content="ایما - دستیار هوشمند ریاضی، ابزارهای کامل ریاضی با رابط کاربری مدرن">
-    <meta name="keywords" content="ریاضی, ماشین حساب, هوش مصنوعی, آموزش ریاضی, ایما">
-    
-    <!-- Open Graph برای اشتراک‌گذاری -->
-    <meta property="og:title" content="ایما | دستیار هوشمند ریاضی">
-    <meta property="og:description" content="پلتفرم کامل آموزش و محاسبات ریاضی">
-    <meta property="og:image" content="IMA.png">
-    <meta property="og:url" content="">
+    <!-- فونت -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
 
-    <link rel="stylesheet" href="styles.css">
+    <!-- آیکون‌ها -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- آیکون سایت -->
+    <link rel="icon"
+          href="IMA.png"
+          type="image/png">
+
+    <!-- PWA -->
+    <link rel="manifest"
+          href="manifest.json">
+
+    <meta name="theme-color"
+          content="#4f46e5">
+
+    <meta name="mobile-web-app-capable"
+          content="yes">
+
+    <!-- iOS PWA -->
+    <meta name="apple-mobile-web-app-capable"
+          content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+          content="ایما">
+
+    <link rel="apple-touch-icon"
+          href="IMA.png">
+
+    <!-- SEO -->
+    <meta name="description"
+          content="ایما - دستیار هوشمند ریاضی، ابزارهای کامل ریاضی با رابط کاربری مدرن">
+
+    <meta name="keywords"
+          content="ریاضی, ماشین حساب, هوش مصنوعی, آموزش ریاضی, ایما">
+
+    <meta name="author"
+          content="Parsa Golmahi">
+
+    <!-- Open Graph -->
+    <meta property="og:title"
+          content="ایما | دستیار هوشمند ریاضی">
+
+    <meta property="og:description"
+          content="پلتفرم کامل آموزش و محاسبات ریاضی">
+
+    <meta property="og:image"
+          content="IMA.png">
+
+    <meta property="og:type"
+          content="website">
+
+    <!-- iOS Splash -->
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="default">
+
+    <!-- استایل اصلی -->
+    <link rel="stylesheet"
+          href="styles.css">
+
 </head>
 <body>
 
@@ -4627,5 +4675,144 @@
         <button onclick="closeIosModal()" class="btn-primary" style="margin-top: 15px;">متوجه شدم</button>
     </div>
 </div>
+<script>
+
+if ('serviceWorker' in navigator) {
+
+  window.addEventListener('load', async () => {
+
+    try {
+
+      const registration = await navigator.serviceWorker.register('./sw.js');
+
+      console.log('SW Registered', registration);
+
+    } catch (err) {
+
+      console.log('SW Error', err);
+
+    }
+
+  });
+
+}
+
+</script>
+<script>
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+
+  e.preventDefault();
+
+  deferredPrompt = e;
+
+  showInstallButton();
+
+});
+
+function showInstallButton() {
+
+  if (document.getElementById('installBtn')) return;
+
+  const btn = document.createElement('button');
+
+  btn.id = 'installBtn';
+
+  btn.innerHTML = '📲 نصب برنامه';
+
+  btn.style.position = 'fixed';
+  btn.style.bottom = '20px';
+  btn.style.left = '20px';
+  btn.style.zIndex = '9999';
+
+  btn.style.padding = '14px 20px';
+
+  btn.style.border = 'none';
+
+  btn.style.borderRadius = '14px';
+
+  btn.style.background = '#4f46e5';
+
+  btn.style.color = 'white';
+
+  btn.style.fontSize = '16px';
+
+  btn.style.cursor = 'pointer';
+
+  btn.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+
+  document.body.appendChild(btn);
+
+  btn.addEventListener('click', async () => {
+
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    const { outcome } = await deferredPrompt.userChoice;
+
+    console.log(outcome);
+
+    deferredPrompt = null;
+
+    btn.remove();
+
+  });
+
+}
+
+</script>
+<script>
+
+function isIos() {
+
+  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+
+}
+
+function isInStandaloneMode() {
+
+  return ('standalone' in window.navigator) && window.navigator.standalone;
+
+}
+
+if (isIos() && !isInStandaloneMode()) {
+
+  const iosBanner = document.createElement('div');
+
+  iosBanner.innerHTML = `
+
+    <div style="
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      left:20px;
+      background:#111827;
+      color:white;
+      padding:16px;
+      border-radius:16px;
+      z-index:9999;
+      text-align:center;
+      line-height:1.8;
+      box-shadow:0 10px 30px rgba(0,0,0,0.3);
+    ">
+
+      برای نصب برنامه در آیفون:
+
+      <br><br>
+
+      Safari → Share → Add to Home Screen
+
+    </div>
+
+  `;
+
+  document.body.appendChild(iosBanner);
+
+}
+
+</script>
 </body>
 </html>
