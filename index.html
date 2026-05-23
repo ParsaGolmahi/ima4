@@ -1009,25 +1009,44 @@ function showInstallButton() {
   btn.innerHTML = '📲 نصب برنامه';
 
   btn.style.position = 'fixed';
-  btn.style.bottom = '20px';
-  btn.style.left = '20px';
+
+  btn.style.bottom = '24px';
+
+  btn.style.right = '24px';
+
+  btn.style.left = 'unset';
+
   btn.style.zIndex = '9999';
 
-  btn.style.padding = '14px 20px';
+  btn.style.display = 'flex';
+
+  btn.style.alignItems = 'center';
+
+  btn.style.gap = '10px';
+
+  btn.style.padding = '14px 18px';
 
   btn.style.border = 'none';
 
-  btn.style.borderRadius = '14px';
+  btn.style.borderRadius = '18px';
 
-  btn.style.background = '#4f46e5';
+  btn.style.background =
+  'linear-gradient(135deg,#6366f1,#8b5cf6)';
 
   btn.style.color = 'white';
 
-  btn.style.fontSize = '16px';
+  btn.style.fontSize = '15px';
+
+  btn.style.fontWeight = '700';
 
   btn.style.cursor = 'pointer';
 
-  btn.style.boxShadow = '0 8px 25px rgba(0,0,0,0.2)';
+  btn.style.boxShadow =
+  '0 10px 30px rgba(99,102,241,0.35)';
+
+  btn.style.backdropFilter = 'blur(10px)';
+
+  btn.style.transition = 'all 0.3s ease';
 
   document.body.appendChild(btn);
 
